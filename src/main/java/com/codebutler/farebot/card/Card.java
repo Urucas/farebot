@@ -89,6 +89,7 @@ public abstract class Card {
     }
 
     public CardType getCardType() {
+        Log.i("card type", mType.toString());
         return mType;
     }
 

@@ -63,8 +63,9 @@ public class SupportedCardsActivity extends Activity {
     private class CardsAdapter extends ArrayAdapter<CardInfo> {
         public CardsAdapter(Context context) {
             super(context, 0, new ArrayList<CardInfo>());
-            add(new CardInfo(R.drawable.orca_card,           "ORCA",          R.string.location_seattle));
+            add(new CardInfo(R.drawable.orca_card,           "ORCA", R.string.location_seattle));
             add(new CardInfo(R.drawable.clipper_card,        "Clipper",       R.string.location_san_francisco));
+            add(new CardInfo(R.drawable.compass_card,        "Compass",       R.string.location_vancouver));
             add(new CardInfo(R.drawable.ezlink_card,         "EZ-Link",       R.string.location_singapore,       R.string.card_note_ezlink));
             add(new CardInfo(R.drawable.nets_card,           "NETS FlashPay", R.string.location_singapore));
             add(new CardInfo(R.drawable.suica_card,          "Suica",         R.string.location_tokyo));
