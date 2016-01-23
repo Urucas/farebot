@@ -24,6 +24,7 @@ package com.codebutler.farebot.card.desfire;
 
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
+import android.util.Log;
 
 import com.codebutler.farebot.card.Card;
 import com.codebutler.farebot.card.CardRawDataFragmentClass;
@@ -65,6 +66,7 @@ public class DesfireCard extends Card {
             DesfireProtocol desfireTag = new DesfireProtocol(tech);
 
             manufData = desfireTag.getManufacturingData();
+            Log.i("manufData", String.valueOf(manufData));
 
             for (int appId : desfireTag.getAppList()) {
                 desfireTag.selectApp(appId);

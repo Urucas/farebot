@@ -23,6 +23,7 @@
 package com.codebutler.farebot.card.desfire;
 
 import android.nfc.tech.IsoDep;
+import android.util.Log;
 
 import com.codebutler.farebot.util.Utils;
 
@@ -46,6 +47,18 @@ public class DesfireProtocol {
 
     private IsoDep mTagTech;
 
+    private String humanCommand(byte command) {
+        if(command == GET_MANUFACTURING_DATA) return "GET_MANUFACTURING_DATA";
+        if(command == GET_APPLICATION_DIRECTORY) return "GET_APPLICATION_DIRECTORY";
+        if(command == GET_ADDITIONAL_FRAME) return "GET_ADDITIONAL_FRAME";
+        if(command == SELECT_APPLICATION) return "SELECT_APPLICATION";
+        if(command == READ_DATA) return "READ_DATA";
+        if(command == READ_RECORD) return "READ_RECORD";
+        if(command == GET_FILES) return "GET_FILES";
+        if(command == GET_FILE_SETTINGS) return "GET_FILE_SETTINGS";
+        return "SOME OTHER COMMAND";
+    }
+
     public DesfireProtocol(IsoDep tagTech) {
         mTagTech = tagTech;
     }
@@ -58,6 +71,8 @@ public class DesfireProtocol {
 
         return new DesfireManufacturingData(respBuffer);
     }
+
+
 
     public int[] getAppList() throws Exception {
         byte[] appDirBuf = sendRequest(GET_APPLICATION_DIRECTORY);
@@ -98,10 +113,11 @@ public class DesfireProtocol {
     }
 
     public byte[] readFile(int fileNo) throws Exception {
-        return sendRequest(READ_DATA, new byte[] {
-            (byte) fileNo,
-            (byte) 0x0, (byte) 0x0, (byte) 0x0,
-            (byte) 0x0, (byte) 0x0, (byte) 0x0
+        Log.i("fileNo", String.valueOf(fileNo));
+        return sendRequest(READ_DATA, new byte[]{
+                (byte) fileNo,
+                (byte) 0x0, (byte) 0x0, (byte) 0x0,
+                (byte) 0x0, (byte) 0x0, (byte) 0x0
         });
     }
 
@@ -136,11 +152,27 @@ public class DesfireProtocol {
             } else if (status == PERMISSION_DENIED) {
                 throw new Exception("Permission denied");
             } else {
+                Log.i("command", humanCommand(command));
+                Log.i("status", String.valueOf(Integer.toHexString(status & 0xFF)));
+                Log.i("rec buffer", readableByteArray(recvBuffer));
+                Log.i("output", readableByteArray(output.toByteArray()));
                 throw new Exception("Unknown status code: " + Integer.toHexString(status & 0xFF));
             }
         }
-
+        if(command == READ_DATA) {
+            Log.i("rec buffer", readableByteArray(output.toByteArray()));
+            Log.i("output", readableByteArray(output.toByteArray()));
+        }
         return output.toByteArray();
+    }
+
+    private String readableByteArray(byte[] arr) {
+        String message = "";
+        for(int i=0; i<arr.length;i++) {
+            byte b = arr[i];
+            message += String.valueOf(Integer.toHexString(b & 0xFF))+" ";
+        }
+        return message;
     }
 
     private byte[] wrapMessage(byte command, byte[] parameters) throws Exception {
@@ -155,6 +187,10 @@ public class DesfireProtocol {
             stream.write(parameters);
         }
         stream.write((byte) 0x00);
+
+        if(command == READ_DATA) {
+            Log.i("wrapped message", readableByteArray(stream.toByteArray()));
+        }
 
         return stream.toByteArray();
     }
