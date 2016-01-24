@@ -94,7 +94,7 @@ public class DesfireProtocol {
         appIdBuff[0] = (byte) ((appId & 0xFF0000) >> 16);
         appIdBuff[1] = (byte) ((appId & 0xFF00) >> 8);
         appIdBuff[2] = (byte) (appId & 0xFF);
-
+        Log.i("selected application", readableByteArray(appIdBuff));
         sendRequest(SELECT_APPLICATION, appIdBuff);
     }
 
@@ -104,6 +104,7 @@ public class DesfireProtocol {
         for (int x = 0; x < buf.length; x++) {
             fileIds[x] = (int)buf[x];
         }
+        Log.i("file list", String.valueOf(fileIds.length));
         return fileIds;
     }
 
@@ -137,6 +138,10 @@ public class DesfireProtocol {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         byte[] recvBuffer = mTagTech.transceive(wrapMessage(command, parameters));
+        if(command == READ_DATA) {
+            Log.i("rec buffer", readableByteArray(recvBuffer));
+            Log.i("output", readableByteArray(output.toByteArray()));
+        }
 
         while (true) {
             if (recvBuffer[recvBuffer.length - 2] != (byte) 0x91)
@@ -154,15 +159,10 @@ public class DesfireProtocol {
             } else {
                 Log.i("command", humanCommand(command));
                 Log.i("status", String.valueOf(Integer.toHexString(status & 0xFF)));
-                Log.i("rec buffer", readableByteArray(recvBuffer));
-                Log.i("output", readableByteArray(output.toByteArray()));
                 throw new Exception("Unknown status code: " + Integer.toHexString(status & 0xFF));
             }
         }
-        if(command == READ_DATA) {
-            Log.i("rec buffer", readableByteArray(output.toByteArray()));
-            Log.i("output", readableByteArray(output.toByteArray()));
-        }
+
         return output.toByteArray();
     }
 
@@ -189,7 +189,10 @@ public class DesfireProtocol {
         stream.write((byte) 0x00);
 
         if(command == READ_DATA) {
-            Log.i("wrapped message", readableByteArray(stream.toByteArray()));
+            Log.i("read data", readableByteArray(stream.toByteArray()));
+        }
+        if(command == GET_FILES) {
+            Log.i("get files", readableByteArray(stream.toByteArray()));
         }
 
         return stream.toByteArray();
